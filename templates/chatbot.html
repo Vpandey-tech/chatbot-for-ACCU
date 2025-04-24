@@ -3,153 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MechAssist - Mechanical Engineering Chatbot</title>
+    <title>MechExpert - Advanced Mechanical Engineering Chatbot</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
     <style>
         :root {
-            --primary-color: #2C3E50;
-            --secondary-color: #E74C3C;
-            --bg-color: #F5F7FA;
-            --text-color: #34495E;
-            --accent-color: #3498DB;
-            --light-color: #ECF0F1;
+            --primary-color: #2563EB;      /* Modern blue */
+            --primary-dark: #1E40AF;       /* Darker blue */
+            --primary-light: #DBEAFE;      /* Very light blue */
+            --secondary-color: #10B981;    /* Green for success/answers */
+            --bg-color: #F9FAFB;           /* Light gray background */
+            --card-bg: #FFFFFF;            /* White for cards */
+            --text-color: #111827;         /* Near black */
+            --text-secondary: #4B5563;     /* Gray for secondary text */
+            --text-light: #9CA3AF;         /* Light gray for tertiary text */
+            --border-color: #E5E7EB;       /* Light gray for borders */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --border-radius: 0.75rem;
+            --border-radius-sm: 0.375rem;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
         
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            line-height: 1.6;
         }
         
         .chat-container {
-            max-width: 800px;
+            max-width: 1000px;
+            width: 100%;
             margin: 0 auto;
-            padding: 2rem 1rem;
+            padding: 1.5rem;
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
         
         .chat-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
         }
         
         .chat-header h1 {
             color: var(--primary-color);
             font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 0.25rem;
         }
         
         .chat-header p {
-            color: var(--text-color);
+            color: var(--text-secondary);
             max-width: 600px;
             margin: 0 auto;
+            font-size: 0.9rem;
         }
         
-        .chat-form {
-            background-color: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-        }
-        
-        .form-label {
-            font-weight: 500;
-            color: var(--primary-color);
-        }
-        
-        .form-control {
-            border: 1px solid #ddd;
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .form-control:focus {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
-        }
-        
-        .btn-primary {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-        }
-        
-        .btn-primary:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
-        }
-        
-        .chat-history {
-            margin-top: 3rem;
-        }
-        
-        .chat-card {
-            background-color: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        .chat-question {
-            color: var(--primary-color);
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+        .chat-main {
             display: flex;
-            align-items: flex-start;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
         }
         
-        .chat-question-icon, .chat-answer-icon {
-            min-width: 30px;
-            height: 30px;
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .chat-input-container {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        
+        .chat-input-form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-input-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+            position: relative;
+        }
+        
+        .chat-input {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            padding: 0.875rem 1rem;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            max-height: 120px;
+            overflow-y: auto;
+            box-shadow: var(--shadow-sm);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .chat-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            padding: 0.875rem 1.25rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .chat-submit:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .chat-submit i {
+            font-size: 1.25rem;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+        
+        .message-user {
+            justify-content: flex-end;
+        }
+        
+        .message-bot {
+            justify-content: flex-start;
+        }
+        
+        .message-content {
+            max-width: 85%;
+            padding: 1rem 1.25rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+        
+        .message-user .message-content {
+            background-color: var(--primary-color);
+            color: white;
+            border-top-right-radius: 0;
+        }
+        
+        .message-bot .message-content {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-top-left-radius: 0;
+        }
+        
+        .message-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .message-meta {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .message-bot .message-meta {
+            color: var(--text-light);
+        }
+        
+        .message-user .message-meta {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .bot-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .bot-avatar {
+            width: 38px;
+            height: 38px;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 0.75rem;
-            color: white;
-            font-weight: 700;
+            font-weight: 600;
+            font-size: 1rem;
         }
         
-        .chat-question-icon {
-            background-color: var(--accent-color);
-        }
-        
-        .chat-answer {
-            margin-top: 1.25rem;
+        .bot-name {
+            font-weight: 600;
+            font-size: 0.9rem;
             color: var(--text-color);
+        }
+        
+        .emphasis {
+            font-weight: 600;
+        }
+        
+        .chat-empty {
             display: flex;
-            align-items: flex-start;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 3rem 0;
+            color: var(--text-secondary);
+            text-align: center;
         }
         
-        .chat-answer-icon {
-            background-color: var(--secondary-color);
+        .empty-icon {
+            font-size: 3.5rem;
+            color: var(--primary-light);
+            margin-bottom: 1rem;
         }
         
-        .chat-response {
-            line-height: 1.6;
-        }
-        
-        .chat-meta {
-            font-size: 0.8rem;
-            color: #95a5a6;
-            margin-top: 1rem;
+        .chat-suggestions {
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            justify-content: center;
         }
         
-        .domain-badge {
-            background-color: var(--primary-color);
-            color: white;
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
+        .suggestion-pill {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            padding: 0.5rem 0.875rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border: none;
+        }
+        
+        .suggestion-pill:hover {
+            background-color: rgba(219, 234, 254, 0.7);
+        }
+        
+        b, strong {
+            font-weight: 600;
         }
         
         @media (max-width: 768px) {
@@ -157,8 +286,8 @@
                 padding: 1rem;
             }
             
-            .chat-form {
-                padding: 1rem;
+            .message-content {
+                max-width: 90%;
             }
         }
     </style>
@@ -166,70 +295,134 @@
 <body>
     <div class="chat-container">
         <div class="chat-header">
-            <h1>MechAssist</h1>
-            <p>A specialized mechanical engineering chatbot providing expert domain knowledge</p>
+            <h1>MechExpert</h1>
+            <p>Advanced assistant for 3D printing, manufacturing, metals, and material science</p>
         </div>
         
-        <div class="chat-form">
-            <form action="/ask" method="POST">
-                <div class="mb-3">
-                    <label for="question" class="form-label">Ask a mechanical engineering question:</label>
-                    <textarea class="form-control" id="question" name="question" rows="3" placeholder="e.g., What is the difference between conduction and convection?" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="domain" class="form-label">Select engineering domain:</label>
-                    <select class="form-select" id="domain" name="domain">
-                        {% for domain in domains %}
-                        <option value="{{ domain.id }}">{{ domain.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary">Get Answer</button>
-                </div>
-            </form>
-        </div>
-        
-        {% if history %}
-        <div class="chat-history">
-            <h3>Previous Questions</h3>
-            
-            {% for item in history %}
-            <div class="chat-card">
-                <div class="chat-question">
-                    <div class="chat-question-icon">Q</div>
-                    <div>{{ item.question }}</div>
-                </div>
-                <div class="chat-answer">
-                    <div class="chat-answer-icon">A</div>
-                    <div class="chat-response">{{ item.response | safe }}</div>
-                </div>
-                <div class="chat-meta">
-                    <span>{{ item.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
-                    <span class="domain-badge">{{ item.domain }}</span>
-                </div>
+        <div class="chat-main">
+            <div class="chat-messages" id="chat-messages">
+                {% if history %}
+                    {% for item in history %}
+                        <div class="message message-user">
+                            <div class="message-content">
+                                <div class="message-text">{{ item.question }}</div>
+                                <div class="message-meta">{{ item.timestamp.strftime('%H:%M') }}</div>
+                            </div>
+                        </div>
+                        <div class="message message-bot">
+                            <div class="message-content">
+                                <div class="bot-info">
+                                    <div class="bot-avatar"><i class="ri-robot-line"></i></div>
+                                    <div class="bot-name">MechExpert</div>
+                                </div>
+                                <div class="message-text">{{ item.response | safe }}</div>
+                                <div class="message-meta">{{ item.timestamp.strftime('%H:%M') }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="chat-empty">
+                        <div class="empty-icon"><i class="ri-message-3-line"></i></div>
+                        <h3>Ask me anything about mechanical engineering</h3>
+                        <p>Specialized in 3D printing, manufacturing, metals, and material science</p>
+                        <div class="chat-suggestions">
+                            <button class="suggestion-pill" onclick="fillQuestion('What are the advantages of 3D printing for manufacturing?')">3D printing advantages</button>
+                            <button class="suggestion-pill" onclick="fillQuestion('Explain the stress-strain relationship in metals')">Stress-strain in metals</button>
+                            <button class="suggestion-pill" onclick="fillQuestion('How do I select the best material for CNC machining?')">Material selection for CNC</button>
+                            <button class="suggestion-pill" onclick="fillQuestion('What are the different types of 3D printing technologies?')">3D printing technologies</button>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
-            {% endfor %}
+            
+            <div class="chat-input-container">
+                <form action="/ask" method="POST" class="chat-input-form">
+                    <div class="chat-input-wrapper">
+                        <textarea class="chat-input" id="question" name="question" placeholder="Ask about 3D printing, manufacturing, metals, or material science..." required></textarea>
+                        <input type="hidden" name="domain" value="general" id="domain">
+                        <button type="submit" class="chat-submit">
+                            Send <i class="ri-send-plane-fill"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-        {% endif %}
     </div>
     
     <script>
+        // Auto-scroll to bottom of chat
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
         // Auto-expand textarea as user types
         const textarea = document.getElementById('question');
         if (textarea) {
             textarea.addEventListener('input', function() {
                 this.style.height = 'auto';
-                this.style.height = (this.scrollHeight) + 'px';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+            
+            // Enter to submit, shift+enter for new line
+            textarea.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    this.form.submit();
+                }
             });
         }
         
-        // Scroll to the form when loading the page
-        window.onload = function() {
-            if (window.location.hash === '#ask') {
-                document.querySelector('.chat-form').scrollIntoView();
+        // Fill question from suggestion
+        function fillQuestion(text) {
+            const textarea = document.getElementById('question');
+            textarea.value = text;
+            textarea.focus();
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+        
+        // Auto-detect domain based on question content
+        function detectDomain(text) {
+            const domains = {
+                "3d printing": "manufacturing",
+                "additive manufacturing": "manufacturing",
+                "cnc": "manufacturing",
+                "machining": "manufacturing",
+                "metals": "materials",
+                "alloys": "materials",
+                "material": "materials",
+                "stress": "materials",
+                "strain": "materials",
+                "manufacturing": "manufacturing",
+                "production": "manufacturing",
+                "forming": "manufacturing"
+            };
+            
+            text = text.toLowerCase();
+            let detectedDomain = "general";
+            
+            for (const [keyword, domain] of Object.entries(domains)) {
+                if (text.includes(keyword)) {
+                    detectedDomain = domain;
+                    break;
+                }
             }
-        };
+            
+            return detectedDomain;
+        }
+        
+        // Set domain before form submission
+        document.querySelector('.chat-input-form').addEventListener('submit', function(e) {
+            const questionText = document.getElementById('question').value;
+            const domainInput = document.getElementById('domain');
+            domainInput.value = detectDomain(questionText);
+        });
+        
+        // Execute when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            scrollToBottom();
+        });
     </script>
 </body>
 </html>
