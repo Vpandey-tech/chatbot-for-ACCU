@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MechAssist - Mechanical Engineering Chatbot</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;700&display=swap">
+    <style>
+        :root {
+            --primary-color: #2C3E50;
+            --secondary-color: #E74C3C;
+            --bg-color: #F5F7FA;
+            --text-color: #34495E;
+            --accent-color: #3498DB;
+            --light-color: #ECF0F1;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            flex: 1;
+        }
+        
+        .chat-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .chat-header h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+        
+        .chat-header p {
+            color: var(--text-color);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .chat-form {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        .form-control {
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+        
+        .chat-history {
+            margin-top: 3rem;
+        }
+        
+        .chat-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chat-question {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .chat-question-icon, .chat-answer-icon {
+            min-width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .chat-question-icon {
+            background-color: var(--accent-color);
+        }
+        
+        .chat-answer {
+            margin-top: 1.25rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .chat-answer-icon {
+            background-color: var(--secondary-color);
+        }
+        
+        .chat-response {
+            line-height: 1.6;
+        }
+        
+        .chat-meta {
+            font-size: 0.8rem;
+            color: #95a5a6;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .domain-badge {
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .chat-container {
+                padding: 1rem;
+            }
+            
+            .chat-form {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>MechAssist</h1>
+            <p>A specialized mechanical engineering chatbot providing expert domain knowledge</p>
+        </div>
+        
+        <div class="chat-form">
+            <form action="/ask" method="POST">
+                <div class="mb-3">
+                    <label for="question" class="form-label">Ask a mechanical engineering question:</label>
+                    <textarea class="form-control" id="question" name="question" rows="3" placeholder="e.g., What is the difference between conduction and convection?" required></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="domain" class="form-label">Select engineering domain:</label>
+                    <select class="form-select" id="domain" name="domain">
+                        {% for domain in domains %}
+                        <option value="{{ domain.id }}">{{ domain.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">Get Answer</button>
+                </div>
+            </form>
+        </div>
+        
+        {% if history %}
+        <div class="chat-history">
+            <h3>Previous Questions</h3>
+            
+            {% for item in history %}
+            <div class="chat-card">
+                <div class="chat-question">
+                    <div class="chat-question-icon">Q</div>
+                    <div>{{ item.question }}</div>
+                </div>
+                <div class="chat-answer">
+                    <div class="chat-answer-icon">A</div>
+                    <div class="chat-response">{{ item.response | safe }}</div>
+                </div>
+                <div class="chat-meta">
+                    <span>{{ item.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                    <span class="domain-badge">{{ item.domain }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <script>
+        // Auto-expand textarea as user types
+        const textarea = document.getElementById('question');
+        if (textarea) {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        }
+        
+        // Scroll to the form when loading the page
+        window.onload = function() {
+            if (window.location.hash === '#ask') {
+                document.querySelector('.chat-form').scrollIntoView();
+            }
+        };
+    </script>
+</body>
+</html>
