@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MechAssist - Mechanical Engineering Chatbot API</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon">
+                        <path d="M24 4C12.954 4 4 12.954 4 24C4 35.046 12.954 44 24 44C35.046 44 44 35.046 44 24C44 12.954 35.046 4 24 4ZM24 8C32.837 8 40 15.163 40 24C40 32.837 32.837 40 24 40C15.163 40 8 32.837 8 24C8 15.163 15.163 8 24 8Z" fill="#3498DB"/>
+                        <path d="M24 12C17.373 12 12 17.373 12 24C12 30.627 17.373 36 24 36C30.627 36 36 30.627 36 24C36 17.373 30.627 12 24 12ZM24 16C28.418 16 32 19.582 32 24C32 28.418 28.418 32 24 32C19.582 32 16 28.418 16 24C16 19.582 19.582 16 24 16Z" fill="#E74C3C"/>
+                        <circle cx="24" cy="24" r="4" fill="#2C3E50"/>
+                    </svg>
+                    <h1>MechAssist</h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="active">Home</a></li>
+                        <li><a href="/documentation">API Documentation</a></li>
+                        <li><a href="#demo">Try It</a></li>
+                        <li><a href="#about">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <h1>Mechanical Engineering<br>Conversational AI</h1>
+                    <p class="lead">
+                        A powerful, open-source language model API specialized in mechanical engineering knowledge.
+                        Get domain-specific assistance with thermodynamics, fluid mechanics, materials science, and more.
+                    </p>
+                    <div class="cta-buttons">
+                        <a href="/documentation" class="btn btn-primary">API Documentation</a>
+                        <a href="#demo" class="btn btn-secondary">Try It Now</a>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="hero-image">
+                        <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg" class="animated-gears">
+                            <!-- Main large gear -->
+                            <g class="gear-large">
+                                <circle cx="150" cy="150" r="60" fill="#2C3E50" />
+                                <!-- Gear teeth -->
+                                <path d="M150 70v-20M150 250v-20M70 150h-20M250 150h-20M125 85l-14-14M225 185l-14-14M85 125l-14 14M185 225l-14 14M85 175l-14-14M185 75l-14-14M125 215l-14 14M225 115l-14 14" stroke="#2C3E50" stroke-width="12" stroke-linecap="round" />
+                                <circle cx="150" cy="150" r="15" fill="#E74C3C" />
+                            </g>
+                            <!-- Small gear 1 -->
+                            <g class="gear-small" style="transform-origin: 80px 80px; animation-direction: reverse;">
+                                <circle cx="80" cy="80" r="30" fill="#3498DB" />
+                                <!-- Gear teeth -->
+                                <path d="M80 40v-10M80 130v-10M40 80h-10M130 80h-10M57 57l-7-7M110 110l-7-7M57 103l-7 7M110 50l-7 7" stroke="#3498DB" stroke-width="8" stroke-linecap="round" />
+                                <circle cx="80" cy="80" r="8" fill="#E74C3C" />
+                            </g>
+                            <!-- Small gear 2 -->
+                            <g class="gear-small" style="transform-origin: 220px 220px;">
+                                <circle cx="220" cy="220" r="30" fill="#3498DB" />
+                                <!-- Gear teeth -->
+                                <path d="M220 180v-10M220 270v-10M180 220h-10M270 220h-10M197 197l-7-7M250 250l-7-7M197 243l-7 7M250 190l-7 7" stroke="#3498DB" stroke-width="8" stroke-linecap="round" />
+                                <circle cx="220" cy="220" r="8" fill="#E74C3C" />
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Key Features</h2>
+            <div class="row">
+                <div class="col-md-4 feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="cpu"></i>
+                    </div>
+                    <h3>Domain-Specific Knowledge</h3>
+                    <p>Specialized in mechanical engineering concepts, calculations, and best practices across multiple sub-domains.</p>
+                </div>
+                <div class="col-md-4 feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="server"></i>
+                    </div>
+                    <h3>RESTful API</h3>
+                    <p>Simple yet powerful API integration with stateless architecture for easy implementation in your applications.</p>
+                </div>
+                <div class="col-md-4 feature-card">
+                    <div class="feature-icon">
+                        <i data-feather="code"></i>
+                    </div>
+                    <h3>Open-Source Model</h3>
+                    <p>Built on open-source language models that run locally, eliminating the need for paid services or API keys.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="demo" class="demo">
+        <div class="container">
+            <h2 class="section-title">Try the API</h2>
+            <div class="demo-container">
+                <div class="demo-panel">
+                    <div class="panel-header">
+                        <h3>API Request</h3>
+                        <div class="domain-selector">
+                            <label for="domain-select">Domain:</label>
+                            <select id="domain-select">
+                                <option value="general">General Mechanical Engineering</option>
+                                <option value="thermodynamics">Thermodynamics</option>
+                                <option value="fluid_mechanics">Fluid Mechanics</option>
+                                <option value="materials">Materials Science</option>
+                                <option value="machine_design">Machine Design</option>
+                                <option value="manufacturing">Manufacturing Processes</option>
+                                <option value="dynamics">Dynamics & Vibrations</option>
+                                <option value="controls">Control Systems</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="input-area">
+                        <div class="code-editor">
+                            <pre><code class="language-json">{
+  "message": "<span id="message-placeholder">Enter your mechanical engineering question here...</span>",
+  "domain": "<span id="domain-value">general</span>"
+}</code></pre>
+                        </div>
+                        <textarea id="user-message" placeholder="Type your mechanical engineering question here..."></textarea>
+                        <button id="send-request" class="btn btn-primary">Send Request</button>
+                    </div>
+                </div>
+                <div class="demo-panel response-panel">
+                    <div class="panel-header">
+                        <h3>API Response</h3>
+                        <div class="spinner" id="response-spinner">
+                            <div class="bounce1"></div>
+                            <div class="bounce2"></div>
+                            <div class="bounce3"></div>
+                        </div>
+                    </div>
+                    <div class="output-area">
+                        <div class="code-editor">
+                            <pre><code class="language-json" id="response-json">// Response will appear here
+</code></pre>
+                        </div>
+                        <div class="response-content" id="response-content">
+                            <div class="placeholder-text">Response will appear here</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about">
+        <div class="container">
+            <h2 class="section-title">About MechAssist</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Our Mission</h3>
+                    <p>MechAssist was created to provide mechanical engineers, students, and hobbyists with accessible AI assistance for technical problems. We believe in democratizing access to engineering knowledge through open-source technology.</p>
+                    <p>By leveraging lightweight language models optimized for mechanical engineering domains, we offer a practical alternative to large commercial AI services without compromising on domain-specific knowledge.</p>
+                </div>
+                <div class="col-md-6">
+                    <h3>Technical Details</h3>
+                    <ul class="tech-details">
+                        <li><strong>Model:</strong> Based on TinyLlama, fine-tuned for engineering knowledge</li>
+                        <li><strong>Backend:</strong> Flask RESTful API with Hugging Face Transformers</li>
+                        <li><strong>Response Time:</strong> Optimized for balance between accuracy and speed</li>
+                        <li><strong>Domains:</strong> 8 specialized mechanical engineering domains</li>
+                        <li><strong>Dependencies:</strong> Python, PyTorch, Transformers, Flask</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo">
+                        <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon">
+                            <path d="M24 4C12.954 4 4 12.954 4 24C4 35.046 12.954 44 24 44C35.046 44 44 35.046 44 24C44 12.954 35.046 4 24 4ZM24 8C32.837 8 40 15.163 40 24C40 32.837 32.837 40 24 40C15.163 40 8 32.837 8 24C8 15.163 15.163 8 24 8Z" fill="#3498DB"/>
+                            <path d="M24 12C17.373 12 12 17.373 12 24C12 30.627 17.373 36 24 36C30.627 36 36 30.627 36 24C36 17.373 30.627 12 24 12ZM24 16C28.418 16 32 19.582 32 24C32 28.418 28.418 32 24 32C19.582 32 16 28.418 16 24C16 19.582 19.582 16 24 16Z" fill="#E74C3C"/>
+                            <circle cx="24" cy="24" r="4" fill="#2C3E50"/>
+                        </svg>
+                        <span>MechAssist</span>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Resources</h4>
+                        <ul>
+                            <li><a href="/documentation">API Documentation</a></li>
+                            <li><a href="#demo">Live Demo</a></li>
+                            <li><a href="#features">Features</a></li>
+                        </ul>
+                    </div>
+                    <div class="link-group">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">License Information</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 MechAssist. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="{{ url_for('static', filename='js/api_demo.js') }}"></script>
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

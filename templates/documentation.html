@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - MechAssist</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+</head>
+<body class="documentation-page">
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon">
+                        <path d="M24 4C12.954 4 4 12.954 4 24C4 35.046 12.954 44 24 44C35.046 44 44 35.046 44 24C44 12.954 35.046 4 24 4ZM24 8C32.837 8 40 15.163 40 24C40 32.837 32.837 40 24 40C15.163 40 8 32.837 8 24C8 15.163 15.163 8 24 8Z" fill="#3498DB"/>
+                        <path d="M24 12C17.373 12 12 17.373 12 24C12 30.627 17.373 36 24 36C30.627 36 36 30.627 36 24C36 17.373 30.627 12 24 12ZM24 16C28.418 16 32 19.582 32 24C32 28.418 28.418 32 24 32C19.582 32 16 28.418 16 24C16 19.582 19.582 16 24 16Z" fill="#E74C3C"/>
+                        <circle cx="24" cy="24" r="4" fill="#2C3E50"/>
+                    </svg>
+                    <h1>MechAssist</h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/documentation" class="active">API Documentation</a></li>
+                        <li><a href="/#demo">Try It</a></li>
+                        <li><a href="/#about">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div class="documentation-container">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="docs-sidebar">
+                        <div class="sidebar-header">
+                            <h3>API Reference</h3>
+                        </div>
+                        <ul class="nav-list">
+                            <li><a href="#introduction" class="active">Introduction</a></li>
+                            <li><a href="#authentication">Authentication</a></li>
+                            <li><a href="#rate-limits">Rate Limits</a></li>
+                            <li class="nav-header">Endpoints</li>
+                            <li><a href="#chat-endpoint">Chat Endpoint</a></li>
+                            <li><a href="#domains-endpoint">Domains Endpoint</a></li>
+                            <li><a href="#health-endpoint">Health Check</a></li>
+                            <li class="nav-header">Guides</li>
+                            <li><a href="#quickstart">Quickstart</a></li>
+                            <li><a href="#examples">Example Usage</a></li>
+                            <li><a href="#error-handling">Error Handling</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="docs-content">
+                        <section id="introduction">
+                            <h2>Introduction</h2>
+                            <p>
+                                The MechAssist API provides programmatic access to a mechanical engineering-focused language model.
+                                It enables developers to integrate conversational AI capabilities with domain-specific knowledge
+                                into their applications without requiring expensive commercial API services.
+                            </p>
+                            <p>
+                                This documentation covers all available endpoints, request/response formats, and provides
+                                examples for common use cases.
+                            </p>
+                            <div class="api-base-info">
+                                <h4>Base URL</h4>
+                                <div class="base-url-container">
+                                    <code>https://your-domain.com/api</code>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="authentication">
+                            <h2>Authentication</h2>
+                            <p>
+                                Currently, the API is available without authentication for demonstration purposes.
+                                In a production environment, authentication would be implemented using API keys or OAuth tokens.
+                            </p>
+                        </section>
+
+                        <section id="rate-limits">
+                            <h2>Rate Limits</h2>
+                            <p>
+                                To ensure service stability, the following rate limits apply:
+                            </p>
+                            <ul>
+                                <li>10 requests per minute per IP address</li>
+                                <li>500 requests per day per IP address</li>
+                            </ul>
+                            <p>
+                                If you exceed these limits, you'll receive a 429 Too Many Requests response.
+                            </p>
+                        </section>
+
+                        <section id="chat-endpoint" class="endpoint-section">
+                            <h2>Chat Endpoint</h2>
+                            <div class="endpoint-info">
+                                <span class="http-method post">POST</span>
+                                <code>/api/chat</code>
+                            </div>
+                            <p>
+                                The primary endpoint for interacting with the MechAssist model. Send a message and receive
+                                a response tailored to mechanical engineering topics.
+                            </p>
+
+                            <h4>Request Parameters</h4>
+                            <table class="params-table">
+                                <thead>
+                                    <tr>
+                                        <th>Parameter</th>
+                                        <th>Type</th>
+                                        <th>Required</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>message</td>
+                                        <td>string</td>
+                                        <td>Required</td>
+                                        <td>The user's query or message</td>
+                                    </tr>
+                                    <tr>
+                                        <td>context</td>
+                                        <td>array</td>
+                                        <td>Optional</td>
+                                        <td>Array of previous message objects with "role" and "content" fields</td>
+                                    </tr>
+                                    <tr>
+                                        <td>domain</td>
+                                        <td>string</td>
+                                        <td>Optional</td>
+                                        <td>Specific engineering domain for specialized responses (default: "general")</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="example-container">
+                                <h4>Example Request</h4>
+                                <pre><code class="language-json">{
+  "message": "What is the difference between conduction and convection?",
+  "domain": "thermodynamics",
+  "context": [
+    {"role": "user", "content": "I'm studying heat transfer."},
+    {"role": "assistant", "content": "That's great! Heat transfer is a fundamental topic in thermodynamics and mechanical engineering."}
+  ]
+}</code></pre>
+
+                                <h4>Example Response</h4>
+                                <pre><code class="language-json">{
+  "response": "Conduction and convection are two of the three main mechanisms of heat transfer (the third being radiation).\n\nConduction is the transfer of heat through direct contact between particles of matter, without bulk motion of the matter. Heat transfers from higher temperature regions to lower temperature regions until thermal equilibrium is reached. The rate of heat transfer by conduction is described by Fourier's Law, where the heat flux is proportional to the negative temperature gradient and the material's thermal conductivity.\n\nConvection involves the transfer of heat due to the bulk movement of molecules within fluids (liquids or gases). It can be forced (when the fluid is forced to move by external means like a fan or pump) or natural (when fluid motion is caused by density differences due to temperature variations). The rate of heat transfer by convection is described by Newton's Law of Cooling, where heat transfer is proportional to the temperature difference and the convection heat transfer coefficient.\n\nThe key difference is that conduction occurs without bulk fluid motion, while convection relies on fluid movement to transfer heat.",
+  "domain": "thermodynamics"
+}</code></pre>
+                            </div>
+                        </section>
+
+                        <section id="domains-endpoint" class="endpoint-section">
+                            <h2>Domains Endpoint</h2>
+                            <div class="endpoint-info">
+                                <span class="http-method get">GET</span>
+                                <code>/api/domains</code>
+                            </div>
+                            <p>
+                                Retrieves the list of available specialized engineering domains that can be used with the chat endpoint.
+                            </p>
+
+                            <div class="example-container">
+                                <h4>Example Response</h4>
+                                <pre><code class="language-json">[
+  {"id": "general", "name": "General Mechanical Engineering"},
+  {"id": "thermodynamics", "name": "Thermodynamics"},
+  {"id": "fluid_mechanics", "name": "Fluid Mechanics"},
+  {"id": "materials", "name": "Materials Science"},
+  {"id": "machine_design", "name": "Machine Design"},
+  {"id": "manufacturing", "name": "Manufacturing Processes"},
+  {"id": "dynamics", "name": "Dynamics and Vibrations"},
+  {"id": "controls", "name": "Control Systems"}
+]</code></pre>
+                            </div>
+                        </section>
+
+                        <section id="health-endpoint" class="endpoint-section">
+                            <h2>Health Check Endpoint</h2>
+                            <div class="endpoint-info">
+                                <span class="http-method get">GET</span>
+                                <code>/api/health</code>
+                            </div>
+                            <p>
+                                A simple endpoint to check if the API service is running properly.
+                            </p>
+
+                            <div class="example-container">
+                                <h4>Example Response</h4>
+                                <pre><code class="language-json">{
+  "status": "active",
+  "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+  "version": "1.0.0"
+}</code></pre>
+                            </div>
+                        </section>
+
+                        <section id="quickstart">
+                            <h2>Quickstart Guide</h2>
+                            <p>
+                                Follow these steps to quickly integrate MechAssist into your application:
+                            </p>
+                            <ol>
+                                <li>
+                                    <strong>Make your first request</strong>
+                                    <p>Use any HTTP client to make a POST request to the chat endpoint:</p>
+                                    <pre><code class="language-javascript">// JavaScript example using fetch
+fetch('/api/chat', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    message: 'What is Young\'s modulus?',
+    domain: 'materials'
+  }),
+})
+.then(response => response.json())
+.then(data => console.log(data.response));</code></pre>
+                                </li>
+                                <li>
+                                    <strong>Implement conversation history</strong>
+                                    <p>For multi-turn conversations, include previous messages:</p>
+                                    <pre><code class="language-python"># Python example using requests
+import requests
+import json
+
+conversation = []
+
+# First message
+response = requests.post('http://your-domain.com/api/chat', json={
+    'message': 'What are the types of gear systems?',
+    'domain': 'machine_design'
+})
+data = response.json()
+print(data['response'])
+
+# Add to conversation history
+conversation.append({'role': 'user', 'content': 'What are the types of gear systems?'})
+conversation.append({'role': 'assistant', 'content': data['response']})
+
+# Follow-up question
+response = requests.post('http://your-domain.com/api/chat', json={
+    'message': 'Can you explain helical gears in more detail?',
+    'domain': 'machine_design',
+    'context': conversation
+})
+data = response.json()
+print(data['response'])</code></pre>
+                                </li>
+                            </ol>
+                        </section>
+
+                        <section id="examples">
+                            <h2>Example Usage</h2>
+                            <div class="example-cards">
+                                <div class="example-card">
+                                    <h4>Material Selection Assistant</h4>
+                                    <p>Help users select appropriate materials for specific engineering applications:</p>
+                                    <pre><code class="language-json">{
+  "message": "What material would be suitable for a high-temperature application that needs to withstand 800°C continuously?",
+  "domain": "materials"
+}</code></pre>
+                                </div>
+                                <div class="example-card">
+                                    <h4>Engineering Calculator Helper</h4>
+                                    <p>Assist with setting up engineering calculations:</p>
+                                    <pre><code class="language-json">{
+  "message": "How do I calculate the deflection of a cantilever beam with a point load at the end?",
+  "domain": "dynamics"
+}</code></pre>
+                                </div>
+                                <div class="example-card">
+                                    <h4>Process Optimization</h4>
+                                    <p>Help with manufacturing process optimization:</p>
+                                    <pre><code class="language-json">{
+  "message": "What parameters should I adjust to reduce porosity in my aluminum die casting process?",
+  "domain": "manufacturing"
+}</code></pre>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="error-handling">
+                            <h2>Error Handling</h2>
+                            <p>
+                                The API uses standard HTTP status codes to indicate the success or failure of a request.
+                            </p>
+                            <table class="error-table">
+                                <thead>
+                                    <tr>
+                                        <th>Status Code</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>200 OK</td>
+                                        <td>Request was successful</td>
+                                    </tr>
+                                    <tr>
+                                        <td>400 Bad Request</td>
+                                        <td>Invalid request parameters</td>
+                                    </tr>
+                                    <tr>
+                                        <td>429 Too Many Requests</td>
+                                        <td>Rate limit exceeded</td>
+                                    </tr>
+                                    <tr>
+                                        <td>500 Internal Server Error</td>
+                                        <td>Server-side error occurred</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="example-container">
+                                <h4>Example Error Response</h4>
+                                <pre><code class="language-json">{
+  "error": "Message is required"
+}</code></pre>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <div class="logo">
+                        <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-icon">
+                            <path d="M24 4C12.954 4 4 12.954 4 24C4 35.046 12.954 44 24 44C35.046 44 44 35.046 44 24C44 12.954 35.046 4 24 4ZM24 8C32.837 8 40 15.163 40 24C40 32.837 32.837 40 24 40C15.163 40 8 32.837 8 24C8 15.163 15.163 8 24 8Z" fill="#3498DB"/>
+                            <path d="M24 12C17.373 12 12 17.373 12 24C12 30.627 17.373 36 24 36C30.627 36 36 30.627 36 24C36 17.373 30.627 12 24 12ZM24 16C28.418 16 32 19.582 32 24C32 28.418 28.418 32 24 32C19.582 32 16 28.418 16 24C16 19.582 19.582 16 24 16Z" fill="#E74C3C"/>
+                            <circle cx="24" cy="24" r="4" fill="#2C3E50"/>
+                        </svg>
+                        <span>MechAssist</span>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Resources</h4>
+                        <ul>
+                            <li><a href="/documentation">API Documentation</a></li>
+                            <li><a href="/#demo">Live Demo</a></li>
+                            <li><a href="/#features">Features</a></li>
+                        </ul>
+                    </div>
+                    <div class="link-group">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">License Information</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 MechAssist. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script>
+        feather.replace();
+        
+        // Smooth scrolling for documentation links
+        document.querySelectorAll('.docs-sidebar a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+                
+                // Update active state
+                document.querySelectorAll('.docs-sidebar a').forEach(a => {
+                    a.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+        
+        // Update active state on scroll
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.docs-content section');
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 100)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            document.querySelectorAll('.docs-sidebar a').forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href') === `#${current}`) {
+                    a.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
