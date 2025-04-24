@@ -237,6 +237,33 @@
             font-weight: 600;
         }
         
+        .conversation-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        
+        .conversation-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 1.5rem 0;
+            opacity: 0.5;
+            position: relative;
+        }
+        
+        .conversation-divider::after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 40px;
+            height: 1px;
+            background-color: var(--primary-color);
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
         .chat-empty {
             display: flex;
             flex-direction: column;
@@ -302,24 +329,30 @@
         <div class="chat-main">
             <div class="chat-messages" id="chat-messages">
                 {% if history %}
-                    {% for item in history %}
-                        <div class="message message-user">
-                            <div class="message-content">
-                                <div class="message-text">{{ item.question }}</div>
-                                <div class="message-meta">{{ item.timestamp.strftime('%H:%M') }}</div>
-                            </div>
-                        </div>
-                        <div class="message message-bot">
-                            <div class="message-content">
-                                <div class="bot-info">
-                                    <div class="bot-avatar"><i class="ri-robot-line"></i></div>
-                                    <div class="bot-name">MechExpert</div>
+                    <div class="conversation-container">
+                        {% for item in history %}
+                            <div class="message message-user">
+                                <div class="message-content">
+                                    <div class="message-text">{{ item.question }}</div>
+                                    <div class="message-meta">{{ item.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
                                 </div>
-                                <div class="message-text">{{ item.response | safe }}</div>
-                                <div class="message-meta">{{ item.timestamp.strftime('%H:%M') }}</div>
                             </div>
-                        </div>
-                    {% endfor %}
+                            <div class="message message-bot">
+                                <div class="message-content">
+                                    <div class="bot-info">
+                                        <div class="bot-avatar"><i class="ri-robot-line"></i></div>
+                                        <div class="bot-name">MechExpert</div>
+                                    </div>
+                                    <div class="message-text">{{ item.response | safe }}</div>
+                                    <div class="message-meta">{{ item.timestamp.strftime('%H:%M') }}</div>
+                                </div>
+                            </div>
+                            
+                            {% if not loop.last %}
+                                <div class="conversation-divider"></div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 {% else %}
                     <div class="chat-empty">
                         <div class="empty-icon"><i class="ri-message-3-line"></i></div>
