@@ -140,34 +140,85 @@ Format important information with <b>bold text</b> for key points and use lists 
         # Check for specific topics in the user's message
         user_message_lower = user_message.lower()
         
+        # Conversational openers based on question type
+        question_openers = [
+            "That's a great question about {}! ",
+            "I'm glad you asked about {}. ",
+            "When it comes to {}, there are several important aspects to consider. ",
+            "You've touched on an interesting topic with {}. ",
+            "From my experience with {}, I can tell you that ",
+            "As a mechanical engineer specializing in {}, I'd approach this by explaining that "
+        ]
+        
+        # Personal advisor phrases to make responses more engaging
+        advisor_phrases = [
+            "Based on my experience, ",
+            "If I were advising on this project, ",
+            "From an engineering perspective, ",
+            "As someone who's worked with these systems, ",
+            "The key insight here is that ",
+            "What's particularly important to understand is ",
+            "A critical consideration for your application would be "
+        ]
+        
+        # Personalized conclusions 
+        personalized_conclusions = [
+            "Does that help with what you're working on? I'd be happy to dive deeper into any specific aspect.",
+            "Would you like me to elaborate on any part of this explanation or discuss how it applies to your specific situation?",
+            "Is there a particular aspect of this that you'd like to explore further for your application?",
+            "How does this align with the specific challenges you're facing in your project?",
+            "I hope that gives you the insight you needed. What other aspects of your engineering challenge can I help with?",
+            "Would you like me to recommend some specific approaches based on your particular requirements?",
+            "Have you encountered any specific issues with this in your work that we should address?"
+        ]
+        
+        # Function to make content more conversational
+        def make_conversational(content, topic):
+            # Split the technical content in parts
+            parts = content.split('\n\n')
+            
+            # Add conversational opener
+            opener = random.choice(question_openers).format(topic)
+            
+            # Insert advisor phrases at strategic points
+            if len(parts) > 2:
+                insertion_point = random.randint(1, min(3, len(parts)-1))
+                parts[insertion_point] = random.choice(advisor_phrases) + parts[insertion_point].lstrip()
+            
+            # Add personalized conclusion
+            conclusion = "\n\n" + random.choice(personalized_conclusions)
+            
+            # Reconstruct with conversational elements
+            return opener + '\n\n' + '\n\n'.join(parts) + conclusion
+        
         # 3D Printing specific topics
         if "3d printing" in user_message_lower or "additive manufacturing" in user_message_lower:
             for keyword, content in self.specialized_knowledge["3d printing"].items():
                 if keyword in user_message_lower:
-                    return content
+                    return make_conversational(content, f"3D printing {keyword}")
         
         # Manufacturing processes
         if "cnc" in user_message_lower or "machining" in user_message_lower:
-            return self.specialized_knowledge["manufacturing processes"]["cnc machining"]
+            return make_conversational(self.specialized_knowledge["manufacturing processes"]["cnc machining"], "CNC machining")
         
         if "injection molding" in user_message_lower or "plastic molding" in user_message_lower:
-            return self.specialized_knowledge["manufacturing processes"]["injection molding"]
+            return make_conversational(self.specialized_knowledge["manufacturing processes"]["injection molding"], "injection molding")
             
         if "sheet metal" in user_message_lower or "metal fabrication" in user_message_lower:
-            return self.specialized_knowledge["manufacturing processes"]["sheet metal fabrication"]
+            return make_conversational(self.specialized_knowledge["manufacturing processes"]["sheet metal fabrication"], "sheet metal fabrication")
             
         # Materials science topics
         if "metal" in user_message_lower and "properties" in user_message_lower:
-            return self.specialized_knowledge["materials"]["metals"]
+            return make_conversational(self.specialized_knowledge["materials"]["metals"], "metal properties")
             
         if "stress" in user_message_lower and "strain" in user_message_lower:
-            return self.specialized_knowledge["materials"]["stress strain"]
+            return make_conversational(self.specialized_knowledge["materials"]["stress strain"], "stress-strain relationships")
             
         if "alloy" in user_message_lower:
-            return self.specialized_knowledge["materials"]["alloys"]
+            return make_conversational(self.specialized_knowledge["materials"]["alloys"], "alloys")
             
         if "composite" in user_message_lower or "fiber reinforced" in user_message_lower:
-            return self.specialized_knowledge["materials"]["composites"]
+            return make_conversational(self.specialized_knowledge["materials"]["composites"], "composite materials")
         
         # Domain-based generic responses if no specific topic detected
         domain = "general"
@@ -183,16 +234,27 @@ Format important information with <b>bold text</b> for key points and use lists 
         responses = self.domain_responses.get(domain, self.domain_responses["general"])
         response = random.choice(responses)
         
-        # Generate a more specific introduction based on the user's question
-        intro = f"I understand you're asking about {user_message[:40].lower()}... "
+        # First, identify the likely topic from the user's message
+        topic_words = ["design", "material", "process", "system", "component", "analysis", 
+                   "manufacturing", "stress", "thermal", "fluid", "mechanical", "energy"]
         
-        # Add a tailored conclusion with more specific information
-        conclusions = [
-            f"To explore this topic further, consider researching specific parameters like material properties, process conditions, and design constraints that might affect your particular application.",
-            f"For the best results, I'd recommend conducting specific experiments or simulations with your exact parameters to validate these general principles in your specific use case.",
-            f"Remember that mechanical engineering solutions often require balancing multiple competing factors, so optimization is key to finding the best approach for your specific requirements."
-        ]
-        conclusion = random.choice(conclusions)
+        detected_topic = None
+        for word in topic_words:
+            if word in user_message_lower:
+                detected_topic = word
+                break
         
-        # Return the complete response
-        return f"{intro}{response} {conclusion}"
+        if not detected_topic:
+            # Use first few meaningful words if no specific topic detected
+            words = [w for w in user_message_lower.split() if len(w) > 3]
+            detected_topic = " ".join(words[:2]) if words else "this engineering topic"
+        
+        # Generate a personalized, advisor-style response
+        opener = random.choice(question_openers).format(detected_topic)
+        advisor_insight = random.choice(advisor_phrases)
+        conclusion = random.choice(personalized_conclusions)
+        
+        # Create a well-structured advisory response
+        full_response = f"{opener}I can help with that. {advisor_insight}{response}\n\n{conclusion}"
+        
+        return full_response
