@@ -1,6 +1,7 @@
 import os
 import logging
 import uuid
+import json
 from flask import Flask, request, jsonify, render_template, redirect, url_for, Response
 from model_handler import MechanicalEngineeringLLM
 from engineering_prompts import get_specialized_prompt
