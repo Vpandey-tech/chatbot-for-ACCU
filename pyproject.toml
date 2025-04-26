@@ -15,6 +15,7 @@ dependencies = [
     "pymupdf>=1.25.5",
     "pytesseract>=0.3.13",
     "sqlalchemy>=2.0.40",
+    "trafilatura>=2.0.0",
 ]
 
 [[tool.uv.index]]

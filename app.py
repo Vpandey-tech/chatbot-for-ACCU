@@ -11,9 +11,9 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from typing import List, Dict, Any, Optional, Union
 
-# Import Claude model and file processor utilities
-from claude_model import ClaudeEngineeringAssistant
-from file_processor import allowed_file, save_uploaded_file, process_file, prepare_for_claude
+# Import open source model and file processor utilities
+from open_source_model import OpenSourceEngineeringAssistant
+from free_file_processor import allowed_file, save_uploaded_file, process_file, prepare_for_model
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -90,13 +90,11 @@ class Question(db.Model):
 # Initialize the LLM models
 model = MechanicalEngineeringLLM()
 try:
-    # Initialize Claude for multimodal capabilities
-    claude_model = ClaudeEngineeringAssistant()
-    claude_available = True
-    logger.info("Claude model initialized successfully")
+    # Initialize open source model for engineering expertise
+    engineering_model = OpenSourceEngineeringAssistant()
+    logger.info("Open source engineering model initialized successfully")
 except Exception as e:
-    claude_available = False
-    logger.error(f"Failed to initialize Claude model: {str(e)}")
+    logger.error(f"Failed to initialize open source model: {str(e)}")
 
 # Create all tables
 with app.app_context():
@@ -165,7 +163,7 @@ def ask():
             # Process the file
             try:
                 extracted_content = process_file(filepath)
-                file_content = prepare_for_claude(extracted_content)
+                file_content = prepare_for_model(extracted_content)
                 has_attachment = True
                 
                 # Create attachment record
@@ -186,21 +184,17 @@ def ask():
     # Get specialized prompt based on the domain
     specialized_prompt = get_specialized_prompt(domain)
     
-    # Generate response using the appropriate model
-    if has_attachment and claude_available:
-        try:
-            # Use Claude for handling files
-            response = claude_model.generate_response(
-                user_message=user_message,
-                file_content=file_content,
-                domain=domain
-            )
-        except Exception as e:
-            logger.error(f"Error using Claude: {str(e)}")
-            # Fallback to basic model
-            response = model.generate_response(user_message, specialized_prompt=specialized_prompt)
-    else:
-        # Use standard model
+    # Generate response using the open source engineering model
+    try:
+        # Use our specialized engineering model
+        response = engineering_model.generate_response(
+            user_message=user_message,
+            specialized_prompt=specialized_prompt,
+            file_content=file_content
+        )
+    except Exception as e:
+        logger.error(f"Error using engineering model: {str(e)}")
+        # Fallback to basic model
         response = model.generate_response(user_message, specialized_prompt=specialized_prompt)
     
     # Store question and response in database
@@ -255,7 +249,7 @@ def chat():
                     # Process the file
                     try:
                         extracted_content = process_file(filepath)
-                        file_content = prepare_for_claude(extracted_content)
+                        file_content = prepare_for_model(extracted_content)
                         has_attachment = True
                         
                         # Create attachment record
@@ -289,22 +283,18 @@ def chat():
         # Get specialized prompt based on the domain
         specialized_prompt = get_specialized_prompt(domain)
         
-        # Generate response using the appropriate model
-        if has_attachment and claude_available:
-            try:
-                # Use Claude for handling files
-                response = claude_model.generate_response(
-                    user_message=user_message,
-                    file_content=file_content,
-                    context=context,
-                    domain=domain
-                )
-            except Exception as e:
-                logger.error(f"Error using Claude: {str(e)}")
-                # Fallback to basic model
-                response = model.generate_response(user_message, context, specialized_prompt)
-        else:
-            # Use standard model
+        # Generate response using our specialized engineering model
+        try:
+            # Use our open source engineering model
+            response = engineering_model.generate_response(
+                user_message=user_message,
+                context=context,
+                specialized_prompt=specialized_prompt,
+                file_content=file_content
+            )
+        except Exception as e:
+            logger.error(f"Error using engineering model: {str(e)}")
+            # Fallback to basic model
             response = model.generate_response(user_message, context, specialized_prompt)
         
         # Store in database
