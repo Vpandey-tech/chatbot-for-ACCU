@@ -21,8 +21,6 @@ import trafilatura
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
-from gensim.summarization import summarize
-from gensim.summarization.textcleaner import split_sentences
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)

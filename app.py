@@ -11,9 +11,9 @@ from datetime import datetime
 from werkzeug.utils import secure_filename
 from typing import List, Dict, Any, Optional, Union
 
-# Import open source model and file processor utilities
-from open_source_model import OpenSourceEngineeringAssistant
-from free_file_processor import allowed_file, save_uploaded_file, process_file, prepare_for_model
+# Import advanced engineering model and enhanced file processor
+from advanced_engineering_model import AdvancedEngineeringAssistant
+from enhanced_file_processor import allowed_file, save_uploaded_file, process_file, prepare_content_for_model
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -90,11 +90,11 @@ class Question(db.Model):
 # Initialize the LLM models
 model = MechanicalEngineeringLLM()
 try:
-    # Initialize open source model for engineering expertise
-    engineering_model = OpenSourceEngineeringAssistant()
-    logger.info("Open source engineering model initialized successfully")
+    # Initialize advanced engineering model with multimodal capabilities
+    engineering_model = AdvancedEngineeringAssistant()
+    logger.info("Advanced engineering model initialized successfully")
 except Exception as e:
-    logger.error(f"Failed to initialize open source model: {str(e)}")
+    logger.error(f"Failed to initialize advanced engineering model: {str(e)}")
 
 # Create all tables
 with app.app_context():
@@ -163,7 +163,7 @@ def ask():
             # Process the file
             try:
                 extracted_content = process_file(filepath)
-                file_content = prepare_for_model(extracted_content)
+                file_content = prepare_content_for_model(extracted_content)
                 has_attachment = True
                 
                 # Create attachment record
@@ -249,7 +249,7 @@ def chat():
                     # Process the file
                     try:
                         extracted_content = process_file(filepath)
-                        file_content = prepare_for_model(extracted_content)
+                        file_content = prepare_content_for_model(extracted_content)
                         has_attachment = True
                         
                         # Create attachment record
