@@ -1,11 +1,18 @@
 import os
 import logging
+import uuid
 from flask import Flask, request, jsonify, render_template, redirect, url_for, Response
 from model_handler import MechanicalEngineeringLLM
 from engineering_prompts import get_specialized_prompt
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from datetime import datetime
+from werkzeug.utils import secure_filename
+from typing import List, Dict, Any, Optional, Union
+
+# Import Claude model and file processor utilities
+from claude_model import ClaudeEngineeringAssistant
+from file_processor import allowed_file, save_uploaded_file, process_file, prepare_for_claude
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -31,28 +38,64 @@ db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
 # Define models
+class Attachment(db.Model):
+    """Model for storing file attachments"""
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(255), nullable=False)
+    filepath = db.Column(db.String(255), nullable=False)
+    file_type = db.Column(db.String(50), nullable=False)  # pdf, image, etc.
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    def __repr__(self):
+        return f"<Attachment: {self.filename}>"
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "filename": self.filename,
+            "file_type": self.file_type,
+            "timestamp": self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
+        }
+
 class Question(db.Model):
     """Model for storing user questions and bot responses"""
     id = db.Column(db.Integer, primary_key=True)
     question = db.Column(db.Text, nullable=False)
     response = db.Column(db.Text, nullable=False)
     domain = db.Column(db.String(50), nullable=False, default="general")
+    has_attachment = db.Column(db.Boolean, default=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    attachments = db.relationship('Attachment', backref='question', lazy=True, cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Question: {self.question[:30]}...>"
     
     def to_dict(self):
-        return {
+        result = {
             "id": self.id,
             "question": self.question,
             "response": self.response,
             "domain": self.domain,
+            "has_attachment": self.has_attachment,
             "timestamp": self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
         }
+        
+        if self.has_attachment:
+            result["attachments"] = [attachment.to_dict() for attachment in self.attachments]
+            
+        return result
 
-# Initialize the LLM
+# Initialize the LLM models
 model = MechanicalEngineeringLLM()
+try:
+    # Initialize Claude for multimodal capabilities
+    claude_model = ClaudeEngineeringAssistant()
+    claude_available = True
+    logger.info("Claude model initialized successfully")
+except Exception as e:
+    claude_available = False
+    logger.error(f"Failed to initialize Claude model: {str(e)}")
 
 # Create all tables
 with app.app_context():
@@ -98,65 +141,205 @@ def home():
 
 @app.route('/ask', methods=['POST'])
 def ask():
-    """Process user question and store in database."""
+    """Process user question and store in database, with optional file attachment."""
     user_message = request.form.get('question', '')
     domain = request.form.get('domain', 'general')
     
     if not user_message:
         return redirect(url_for('home'))
     
+    # Check if a file was uploaded
+    file_content = None
+    has_attachment = False
+    attachments = []
+    
+    if 'attachment' in request.files:
+        file = request.files['attachment']
+        if file and file.filename and allowed_file(file.filename):
+            # Secure the filename and save the file
+            filename = secure_filename(file.filename)
+            unique_filename = f"{uuid.uuid4()}_{filename}"
+            filepath = save_uploaded_file(file, unique_filename)
+            
+            # Process the file
+            try:
+                extracted_content = process_file(filepath)
+                file_content = prepare_for_claude(extracted_content)
+                has_attachment = True
+                
+                # Create attachment record
+                file_type = filename.split('.')[-1].lower()
+                attachment = Attachment(
+                    filename=filename,
+                    filepath=filepath,
+                    file_type=file_type
+                )
+                attachments.append(attachment)
+                
+                # Add file details to user message
+                user_message += f"\n\nI've attached a {file_type} file: {filename}. Please analyze it in your response."
+                
+            except Exception as e:
+                logger.error(f"Error processing file: {str(e)}")
+    
     # Get specialized prompt based on the domain
     specialized_prompt = get_specialized_prompt(domain)
     
-    # Generate response using the model
-    response = model.generate_response(user_message, specialized_prompt=specialized_prompt)
+    # Generate response using the appropriate model
+    if has_attachment and claude_available:
+        try:
+            # Use Claude for handling files
+            response = claude_model.generate_response(
+                user_message=user_message,
+                file_content=file_content,
+                domain=domain
+            )
+        except Exception as e:
+            logger.error(f"Error using Claude: {str(e)}")
+            # Fallback to basic model
+            response = model.generate_response(user_message, specialized_prompt=specialized_prompt)
+    else:
+        # Use standard model
+        response = model.generate_response(user_message, specialized_prompt=specialized_prompt)
     
     # Store question and response in database
     new_question = Question(
         question=user_message,
         response=response,
-        domain=domain
+        domain=domain,
+        has_attachment=has_attachment
     )
+    
+    # Add to database
     db.session.add(new_question)
+    db.session.flush()  # Flush to get the question ID
+    
+    # Associate attachments with the question
+    for attachment in attachments:
+        attachment.question_id = new_question.id
+        db.session.add(attachment)
+    
     db.session.commit()
     
     return redirect(url_for('home'))
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    """API endpoint for chat interactions."""
+    """API endpoint for chat interactions with optional file attachments."""
     try:
-        data = request.json
-        if not data or 'message' not in data:
-            return jsonify({'error': 'Message is required'}), 400
-        
-        # Extract message and optional context from request
-        user_message = data['message']
-        context = data.get('context', [])
-        domain = data.get('domain', 'general')
-        session_id = data.get('session_id', None)  # Optional session ID for grouping conversations
+        # Check if multipart form data (file upload) or JSON
+        if request.content_type and 'multipart/form-data' in request.content_type:
+            # Handle multipart form data with file
+            user_message = request.form.get('message', '')
+            domain = request.form.get('domain', 'general')
+            context_json = request.form.get('context', '[]')
+            try:
+                context = json.loads(context_json)
+            except:
+                context = []
+            
+            # Check for file attachments
+            file_content = None
+            has_attachment = False
+            attachments = []
+            
+            if 'attachment' in request.files:
+                file = request.files['attachment']
+                if file and file.filename and allowed_file(file.filename):
+                    # Secure the filename and save the file
+                    filename = secure_filename(file.filename)
+                    unique_filename = f"{uuid.uuid4()}_{filename}"
+                    filepath = save_uploaded_file(file, unique_filename)
+                    
+                    # Process the file
+                    try:
+                        extracted_content = process_file(filepath)
+                        file_content = prepare_for_claude(extracted_content)
+                        has_attachment = True
+                        
+                        # Create attachment record
+                        file_type = filename.split('.')[-1].lower()
+                        attachment = Attachment(
+                            filename=filename,
+                            filepath=filepath,
+                            file_type=file_type
+                        )
+                        attachments.append(attachment)
+                        
+                        # Add file details to user message
+                        user_message += f"\n\nI've attached a {file_type} file: {filename}. Please analyze it in your response."
+                        
+                    except Exception as e:
+                        logger.error(f"Error processing file: {str(e)}")
+        else:
+            # Handle JSON data (no file)
+            data = request.json
+            if not data or 'message' not in data:
+                return jsonify({'error': 'Message is required'}), 400
+            
+            # Extract message and optional context from request
+            user_message = data['message']
+            context = data.get('context', [])
+            domain = data.get('domain', 'general')
+            has_attachment = False
+            file_content = None
+            attachments = []
         
         # Get specialized prompt based on the domain
         specialized_prompt = get_specialized_prompt(domain)
         
-        # Generate response using the model
-        response = model.generate_response(user_message, context, specialized_prompt)
+        # Generate response using the appropriate model
+        if has_attachment and claude_available:
+            try:
+                # Use Claude for handling files
+                response = claude_model.generate_response(
+                    user_message=user_message,
+                    file_content=file_content,
+                    context=context,
+                    domain=domain
+                )
+            except Exception as e:
+                logger.error(f"Error using Claude: {str(e)}")
+                # Fallback to basic model
+                response = model.generate_response(user_message, context, specialized_prompt)
+        else:
+            # Use standard model
+            response = model.generate_response(user_message, context, specialized_prompt)
         
-        # Store in database if API call
+        # Store in database
         new_question = Question(
             question=user_message,
             response=response,
-            domain=domain
+            domain=domain,
+            has_attachment=has_attachment
         )
         db.session.add(new_question)
+        db.session.flush()  # Flush to get the question ID
+        
+        # Associate attachments with the question
+        for attachment in attachments:
+            attachment.question_id = new_question.id
+            db.session.add(attachment)
+        
         db.session.commit()
         
-        return jsonify({
+        result = {
             'id': new_question.id,
             'response': response,
             'domain': domain,
+            'has_attachment': has_attachment,
             'timestamp': new_question.timestamp.strftime('%Y-%m-%d %H:%M:%S')
-        })
+        }
+        
+        if has_attachment:
+            result['attachments'] = [
+                {
+                    'filename': a.filename,
+                    'file_type': a.file_type
+                } for a in attachments
+            ]
+            
+        return jsonify(result)
     
     except Exception as e:
         logger.exception("Error processing chat request")
