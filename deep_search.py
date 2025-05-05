@@ -1,3 +1,4 @@
+
 """
 Deep Search module for the Mechanical Engineering Chatbot.
 Provides advanced knowledge search capabilities using open-source tools.
@@ -21,10 +22,14 @@ import trafilatura
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# Suppress urllib3 debug logs to reduce noise
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 # Ensure NLTK resources are available
 try:
@@ -71,6 +76,15 @@ class DeepSearchEngine:
         # Build initial index
         self._build_initial_index()
     
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=4, max=10),
+        retry=retry_if_exception_type((requests.exceptions.RequestException, wikipedia.exceptions.WikipediaException))
+    )
+    def _fetch_wikipedia_summary(self, term: str) -> str:
+        """Fetch Wikipedia summary for a term with retry logic."""
+        return wikipedia.summary(term, sentences=3, auto_suggest=False)
+    
     def _build_initial_index(self):
         """Build the initial document index from stored knowledge."""
         try:
@@ -80,7 +94,7 @@ class DeepSearchEngine:
                 description = f"{domain}: {', '.join(keywords)}"
                 domain_descriptions.append(description)
             
-            # Get Wikipedia snippets for engineering terms (offline/cached approach)
+            # Get Wikipedia snippets for engineering terms
             engineering_terms = [
                 "Mechanical engineering", "Material science", "Manufacturing engineering",
                 "Computer-aided design", "Computer-aided manufacturing", "3D printing",
@@ -91,11 +105,14 @@ class DeepSearchEngine:
             wiki_snippets = []
             for term in engineering_terms:
                 try:
-                    # Attempt to get Wikipedia summary with a timeout
-                    snippet = wikipedia.summary(term, sentences=3, auto_suggest=False)
+                    # Fetch summary with retry
+                    snippet = self._fetch_wikipedia_summary(term)
                     wiki_snippets.append(f"{term}: {snippet}")
+                    logger.info(f"Successfully fetched Wikipedia snippet for {term}")
+                    time.sleep(1)  # Delay to avoid rate limiting
                 except Exception as e:
-                    logger.error(f"Error fetching Wikipedia snippet for {term}: {str(e)}")
+                    logger.error(f"Failed to fetch Wikipedia snippet for {term}: {str(e)}")
+                    continue  # Skip failed term and continue
             
             # Combine all documents
             self.documents = domain_descriptions + wiki_snippets

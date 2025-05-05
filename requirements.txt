@@ -1,0 +1,16 @@
+Flask
+Flask-Cors
+Flask-SQLAlchemy
+SQLAlchemy>=2.0
+python-dotenv
+Pillow
+numpy
+faiss-cpu
+trafilatura
+nltk
+lxml_html_clean
+scikit-learn
+PyMuPDF
+pytesseract
+pdf2image
+tenacity
